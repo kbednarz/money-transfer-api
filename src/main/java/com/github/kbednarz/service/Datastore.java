@@ -26,6 +26,10 @@ public class Datastore {
         return account;
     }
 
+    public Account saveAccount(Account account) {
+        return getAccountCollection().put(account.getNumber(), account);
+    }
+
     private HTreeMap<String, Account> getAccountCollection() {
         return db.hashMap(ACCOUNT_COLLECTION, Serializer.STRING, Serializer.JAVA).createOrOpen();
     }

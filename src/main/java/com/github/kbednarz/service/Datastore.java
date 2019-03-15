@@ -1,7 +1,6 @@
 package com.github.kbednarz.service;
 
 import com.github.kbednarz.domain.Account;
-import com.github.kbednarz.error.InvalidInputException;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.HTreeMap;
@@ -18,12 +17,8 @@ public class Datastore {
                 .make();
     }
 
-    public Account getAccount(String accountNumber) throws InvalidInputException {
-        Account account = getAccountCollection().get(accountNumber);
-        if (account == null)
-            throw new InvalidInputException("Account with number: " + accountNumber + " does not exist");
-
-        return account;
+    public Account getAccount(String accountNumber) {
+        return getAccountCollection().get(accountNumber);
     }
 
     public Account saveAccount(Account account) {

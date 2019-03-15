@@ -1,6 +1,7 @@
 package com.github.kbednarz.service;
 
 import com.github.kbednarz.domain.Account;
+import com.github.kbednarz.error.InvalidInputException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +17,20 @@ public class AccountService {
         this.db = db;
     }
 
-    public Account create(Account account) {
+    public Account create(Account account) throws InvalidInputException {
+        // todo: impl dto
+        logger.debug("Creating account: [{}]", account.getNumber());
+
+        if (db.getAccount(account.getNumber()) != null)
+            throw new InvalidInputException("Account with number: " + account.getNumber() + " already exists");
         return db.saveAccount(account);
+    }
+
+    public long getBalance(String accountNumber) throws InvalidInputException {
+        logger.debug("Getting balance for account: [{}]", accountNumber);
+        Account account = db.getAccount(accountNumber);
+        if (account == null)
+            throw new InvalidInputException("Account with number: " + accountNumber + " does not exist");
+        return account.getBalance();
     }
 }

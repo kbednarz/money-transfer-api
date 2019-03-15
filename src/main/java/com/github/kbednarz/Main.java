@@ -21,7 +21,8 @@ public class Main {
         servletContextHandler.setContextPath("/");
         server.setHandler(servletContextHandler);
 
-        ServletHolder servletHolder = new ServletHolder(new ServletContainer());
+        BeanConfiguration beanConfiguration = new BeanConfiguration();
+        ServletHolder servletHolder = new ServletHolder(new ServletContainer(beanConfiguration));
         servletContextHandler.addServlet(servletHolder, "/api/*");
 
         try {

@@ -23,14 +23,16 @@ public class AccountService {
 
         if (db.getAccount(account.getNumber()) != null)
             throw new InvalidInputException("Account with number: " + account.getNumber() + " already exists");
+
         return db.saveAccount(account);
     }
 
-    public long getBalance(String accountNumber) throws InvalidInputException {
-        logger.debug("Getting balance for account: [{}]", accountNumber);
+    public Account get(String accountNumber) throws InvalidInputException {
+        logger.debug("Getting account with number: [{}]", accountNumber);
         Account account = db.getAccount(accountNumber);
         if (account == null)
             throw new InvalidInputException("Account with number: " + accountNumber + " does not exist");
-        return account.getBalance();
+
+        return account;
     }
 }

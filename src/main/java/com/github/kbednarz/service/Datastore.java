@@ -22,7 +22,8 @@ public class Datastore {
     }
 
     public Account saveAccount(Account account) {
-        return getAccountCollection().put(account.getNumber(), account);
+        getAccountCollection().put(account.getNumber(), account);
+        return account;
     }
 
     private HTreeMap<String, Account> getAccountCollection() {

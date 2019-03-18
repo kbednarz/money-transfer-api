@@ -25,7 +25,7 @@ public class TransferServiceTest {
     @Test
     public void transferFromOneToAnotherFromDifferentThreads() throws InterruptedException, InvalidInputException {
         // given
-        int ITERATIONS = 200;
+        int THREADS = 200;
         String from = "0000071219812874", to = "004561231564165";
         Account accountFrom = new Account(1000, from, 1);
         accountFrom = accountService.create(accountFrom);
@@ -33,7 +33,7 @@ public class TransferServiceTest {
         accountTo = accountService.create(accountTo);
 
         List<Thread> threads = new ArrayList<>();
-        for (int i = 0; i < ITERATIONS; i++) {
+        for (int i = 0; i < THREADS; i++) {
             Thread thread = new Thread(() -> {
                 try {
                     transferService.transfer(from, to, 1);
@@ -55,7 +55,7 @@ public class TransferServiceTest {
         // then
         accountFrom = accountService.get(accountFrom.getNumber());
         accountTo = accountService.get(accountTo.getNumber());
-        assertEquals(1000 - ITERATIONS, accountFrom.getBalance());
-        assertEquals(ITERATIONS, accountTo.getBalance());
+        assertEquals(1000 - THREADS, accountFrom.getBalance());
+        assertEquals(THREADS, accountTo.getBalance());
     }
 }

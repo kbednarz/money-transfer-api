@@ -40,4 +40,6 @@ dependencies {
     compile "org.glassfish.jersey.inject:jersey-hk2:${jerseyVersion}"
 
     compile group: 'org.mapdb', name: 'mapdb', version: '3.0.7'
+
+    testCompile "org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-jetty:${jerseyVersion}"
 }

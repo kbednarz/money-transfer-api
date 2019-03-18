@@ -1,6 +1,7 @@
 package com.github.kbednarz.service;
 
 import com.github.kbednarz.domain.Account;
+import com.github.kbednarz.dto.AccountDto;
 import com.github.kbednarz.error.InvalidInputException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,10 @@ public class AccountService {
     @Inject
     public AccountService(Datastore db) {
         this.db = db;
+    }
+
+    public Account create(AccountDto dto) throws InvalidInputException {
+        return create(new Account(0, dto.number, dto.clientId));
     }
 
     public Account create(Account account) throws InvalidInputException {

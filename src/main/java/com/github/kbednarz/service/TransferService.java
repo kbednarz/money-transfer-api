@@ -36,17 +36,7 @@ public class TransferService {
             try {
                 lockTo = acquireLock(to);
 
-                Account accountFrom = accountService.get(from);
-                Account accountTo = accountService.get(to);
-
-                if (accountFrom.getBalance() < amount)
-                    throw new NotEnoughFundsException();
-
-                accountFrom.setBalance(accountFrom.getBalance() - amount);
-                accountTo.setBalance(accountTo.getBalance() + amount);
-                db.saveAccount(accountFrom);
-                db.saveAccount(accountTo);
-
+                transferMoney(from, to, amount);
             } finally {
                 if (lockTo != null) lockTo.unlock();
             }
@@ -56,10 +46,25 @@ public class TransferService {
         }
     }
 
+    private void transferMoney(String from, String to, long amount) throws InvalidInputException, NotEnoughFundsException {
+        Account accountFrom = accountService.get(from);
+        Account accountTo = accountService.get(to);
+
+        if (accountFrom.getBalance() < amount)
+            throw new NotEnoughFundsException();
+
+        accountFrom.setBalance(accountFrom.getBalance() - amount);
+        accountTo.setBalance(accountTo.getBalance() + amount);
+        db.saveAccount(accountFrom);
+        db.saveAccount(accountTo);
+    }
+
     private ReentrantLock acquireLock(String accountNumber) throws InterruptedException, ServerException {
         int hash = accountNumber.hashCode() % MAX_CONNECTIONS;
+
         lockHashMap.putIfAbsent(hash, new ReentrantLock());
         ReentrantLock lock = lockHashMap.get(hash);
+
         if (lock.tryLock(LOCK_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
             return lock;
         } else {

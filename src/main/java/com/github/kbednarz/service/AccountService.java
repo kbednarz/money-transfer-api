@@ -18,7 +18,6 @@ public class AccountService {
     }
 
     public Account create(Account account) throws InvalidInputException {
-        // todo: impl dto
         logger.debug("Creating account: [{}]", account.getNumber());
 
         if (db.getAccount(account.getNumber()) != null)

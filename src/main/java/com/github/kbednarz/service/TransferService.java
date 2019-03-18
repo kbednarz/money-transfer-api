@@ -3,19 +3,16 @@ package com.github.kbednarz.service;
 import com.github.kbednarz.domain.Account;
 import com.github.kbednarz.error.InvalidInputException;
 import com.github.kbednarz.error.NotEnoughFundsException;
-import com.github.kbednarz.error.ServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class TransferService {
     private static final Logger logger = LoggerFactory.getLogger(TransferService.class);
     private static final int MAX_CONNECTIONS = 200;
-    private static final int LOCK_TIMEOUT_MS = 1000;
 
     private final HashMap<Integer, ReentrantLock> lockHashMap = new HashMap<>();
     private final Datastore db;
@@ -27,21 +24,22 @@ public class TransferService {
         this.accountService = accountService;
     }
 
-    public void transfer(String from, String to, long amount) throws InvalidInputException, NotEnoughFundsException, ServerException, InterruptedException {
+    public void transfer(String from, String to, long amount) throws InvalidInputException, NotEnoughFundsException {
         logger.debug("Transferring: [{}] from [{}] to [{}]", amount, from, to);
 
-        ReentrantLock lockFrom = null, lockTo = null;
+        ReentrantLock firstLock = null, secondLock = null;
+        boolean order = from.compareTo(to) < 0;
         try {
-            lockFrom = acquireLock(from);
+            firstLock = order ? acquireLock(from) : acquireLock(to);
             try {
-                lockTo = acquireLock(to);
+                secondLock = order ? acquireLock(to) : acquireLock(from);
 
                 transferMoney(from, to, amount);
             } finally {
-                if (lockTo != null) lockTo.unlock();
+                if (secondLock != null) secondLock.unlock();
             }
         } finally {
-            if (lockFrom != null) lockFrom.unlock();
+            if (firstLock != null) firstLock.unlock();
 
         }
     }
@@ -59,17 +57,13 @@ public class TransferService {
         db.saveAccount(accountTo);
     }
 
-    private ReentrantLock acquireLock(String accountNumber) throws InterruptedException, ServerException {
+    private ReentrantLock acquireLock(String accountNumber) {
         int hash = accountNumber.hashCode() % MAX_CONNECTIONS;
-
         lockHashMap.putIfAbsent(hash, new ReentrantLock());
         ReentrantLock lock = lockHashMap.get(hash);
 
-        if (lock.tryLock(LOCK_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
-            return lock;
-        } else {
-            throw new ServerException("Cannot acquire lock");
-        }
+        lock.lock();
+        return lock;
     }
 
 }
